@@ -15,7 +15,11 @@ def get_db():
 
 @app.route('/')
 def home():
-    return "Flask is working!"
+    name = "Tanish"
+    return render_template('index.html', username=name)
+
+def test():
+    return "I understand routes!"
 
 if __name__ == "__main__":
     app.run(debug=True)
