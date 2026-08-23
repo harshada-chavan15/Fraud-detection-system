@@ -42,3 +42,7 @@ Go to http://127.0.0.1:5000
 
 
 Once you paste that whole thing into GitHub and click **Commit changes**, your README
+
+## 🖼️ Dashboard Preview
+<img width="1881" height="883" alt="image" src="https://github.com/user-attachments/assets/98dba944-cd55-47c6-8fda-bb613419329f" />
+
