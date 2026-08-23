@@ -1,6 +1,144 @@
-<h1>SecureBank Fraud Detection</h1>
-<p>Welcome, {{ username }}</p>
-<!-- index.html -->
-{% for t in transactions %}
-    <p>{{ t.name }} — {{ t.amount }}</p>
-{% endfor %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Risk & Fraud Monitoring Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white font-bold">🛡️</div>
+                <h1 class="text-xl font-bold tracking-tight text-white">FraudGuard AI <span class="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">Live Monitoring</span></h1>
+            </div>
+            <div class="text-sm text-slate-400">System Status: <span class="text-emerald-400 font-semibold">● Operational</span></div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Top Section: Input Form Card -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <span>⚡</span> Evaluate New Transaction
+            </h2>
+            
+            <form action="/" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <!-- Sender ID -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Sender ID</label>
+                    <input type="number" name="sender_id" required placeholder="e.g. 101" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Receiver ID -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Receiver ID</label>
+                    <input type="number" name="receiver_id" required placeholder="e.g. 202" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Amount -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Amount ($)</label>
+                    <input type="number" step="0.01" name="amount" required placeholder="5000.00" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Location</label>
+                    <input type="text" name="location" required placeholder="Pune, Mumbai" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-2 px-4 rounded-lg transition-colors shadow-lg shadow-blue-600/20">
+                        Evaluate Transaction
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Bottom Section: Transactions Table -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-semibold text-white">Recent Evaluated Transactions</h3>
+                <span class="text-xs text-slate-400">Showing live database feed</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-950/50 text-slate-400 border-b border-slate-800 text-xs uppercase tracking-wider">
+                            <th class="py-3 px-6">Txn ID</th>
+                            <th class="py-3 px-6">Sender</th>
+                            <th class="py-3 px-6">Receiver</th>
+                            <th class="py-3 px-6">Amount</th>
+                            <th class="py-3 px-6">Location</th>
+                            <th class="py-3 px-6">Risk Score</th>
+                            <th class="py-3 px-6">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                        <!-- Flask Jinja Loop Template -->
+                        {% for row in transactions %}
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-6 font-mono text-xs text-slate-400">#{{ row.id }}</td>
+                            <td class="py-3 px-6 font-medium text-white">{{ row.sender_id }}</td>
+                            <td class="py-3 px-6 font-medium text-white">{{ row.receiver_id }}</td>
+                            <td class="py-3 px-6 font-mono">${{ "%.2f"|format(row.amount) }}</td>
+                            <td class="py-3 px-6 text-slate-400">{{ row.location }}</td>
+                            <td class="py-3 px-6 font-mono font-semibold 
+                                {% if row.risk_score > 75 %} text-red-400 
+                                {% elif row.risk_score > 40 %} text-amber-400 
+                                {% else %} text-emerald-400 {% endif %}">
+                                {{ row.risk_score }}
+                            </td>
+                            <td class="py-3 px-6">
+                                {% if row.status == 'APPROVED' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">APPROVED</span>
+                                {% elif row.status == 'FLAGGED' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">FLAGGED</span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">BLOCKED</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-slate-500 italic">
+                                No transactions evaluated yet. Submit a test transaction above!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
