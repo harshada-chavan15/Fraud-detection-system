@@ -1,0 +1,86 @@
+==== DATA ====
+685 transactions | 149 labeled fraud (21.8%)
+Note: synthetic data. Rows entered through the dashboard count as legit (is_fraud=0).
+
+==== MAIN RUN (seed 42, tree depth 4, 172 test rows) ====
+Rules (FLAGGED or BLOCKED counts as 'fraud'):
+  precision 0.79 | recall 0.81 | F1 0.80
+  rules: caught fraud 30 | missed fraud 7 | false alarms 8 | correctly cleared 127
+Decision Tree:
+  precision 0.84 | recall 0.84 | F1 0.84
+  tree : caught fraud 31 | missed fraud 6 | false alarms 6 | correctly cleared 129
+
+==== WHAT THE TREE LEARNED ====
+Feature importance:
+  amount_vs_avg_ratio: 0.78
+  minutes_since_prev_txn: 0.14
+  hour: 0.06
+  account_age_days: 0.02
+  amount: 0.01
+
+The tree's if/else rules (class 1 = fraud):
+|--- amount_vs_avg_ratio <= 2.01
+|   |--- minutes_since_prev_txn <= 0.60
+|   |   |--- minutes_since_prev_txn <= 0.04
+|   |   |   |--- class: 0
+|   |   |--- minutes_since_prev_txn >  0.04
+|   |   |   |--- hour <= 1.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- hour >  1.50
+|   |   |   |   |--- class: 1
+|   |--- minutes_since_prev_txn >  0.60
+|   |   |--- hour <= 6.50
+|   |   |   |--- amount_vs_avg_ratio <= 0.88
+|   |   |   |   |--- class: 0
+|   |   |   |--- amount_vs_avg_ratio >  0.88
+|   |   |   |   |--- class: 1
+|   |   |--- hour >  6.50
+|   |   |   |--- hour <= 16.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- hour >  16.50
+|   |   |   |   |--- class: 0
+|--- amount_vs_avg_ratio >  2.01
+|   |--- amount <= 15149.45
+|   |   |--- hour <= 14.50
+|   |   |   |--- hour <= 3.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- hour >  3.50
+|   |   |   |   |--- class: 1
+|   |   |--- hour >  14.50
+|   |   |   |--- account_age_days <= 639.87
+|   |   |   |   |--- class: 0
+|   |   |   |--- account_age_days >  639.87
+|   |   |   |   |--- class: 1
+|   |--- amount >  15149.45
+|   |   |--- account_age_days <= 0.10
+|   |   |   |--- class: 1
+|   |   |--- account_age_days >  0.10
+|   |   |   |--- class: 1
+
+
+==== WHERE THEY DISAGREE (test rows) ====
+Fraud caught by the TREE but missed by the rules: 3
+    #3487  Rs2,240  Pune  hour 13
+    #3930  Rs4,477  Pune  hour 6
+    #3513  Rs804  Surat  hour 4
+Fraud caught by the RULES but missed by the tree: 2
+    #3488  Rs2,088  Pune  hour 13
+    #3862  Rs14,342  Surat  hour 23
+Fraud missed by BOTH (likely the undetectable 'stealth' fraud): 4
+    #3570  Rs839  Mumbai  hour 10
+    #3555  Rs3,240  Bangalore  hour 22
+    #3764  Rs1,092  Bangalore  hour 16
+Legit transactions wrongly stopped by the rules only: 2
+    #4018  Rs11,820  Bangalore  hour 23
+    #3446  Rs14,414  Bangalore  hour 23
+Legit transactions wrongly stopped by the tree only: 0
+
+==== ROBUSTNESS: 10 different random splits, depth 4 ====
+  rules: precision 0.80 +/- 0.04 | recall 0.85 +/- 0.05 | f1 0.83 +/- 0.04
+  tree : precision 0.82 +/- 0.05 | recall 0.84 +/- 0.04 | f1 0.83 +/- 0.04
+
+==== TREE DEPTH COMPARISON (average over the same splits) ====
+  depth 2: precision 0.79 | recall 0.87 | F1 0.83
+  depth 3: precision 0.79 | recall 0.88 | F1 0.83
+  depth 4: precision 0.82 | recall 0.84 | F1 0.83
+  depth 6: precision 0.82 | recall 0.82 | F1 0.82
