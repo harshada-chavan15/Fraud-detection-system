@@ -19,6 +19,7 @@ import os
 import random
 from datetime import datetime, timedelta
 
+import config  # loads settings from .env
 import mysql.connector
 
 random.seed(42)  # reproducible dataset -- remove/change for fresh data each run

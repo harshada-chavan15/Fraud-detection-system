@@ -15,6 +15,7 @@ import heapq
 import os
 import sys
 
+import config  # loads settings from .env
 import mysql.connector
 
 from risk_engine import score_transaction, decide, count_recent

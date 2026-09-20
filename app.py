@@ -13,6 +13,7 @@ Run:  python app.py   ->  http://127.0.0.1:5000
 
 import os
 
+import config  # loads settings from .env
 import mysql.connector
 from flask import Flask, redirect, render_template, request, url_for
 

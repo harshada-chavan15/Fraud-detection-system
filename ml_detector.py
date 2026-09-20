@@ -21,6 +21,7 @@ Results are also saved to ml_results.txt for your README.
 
 import os
 
+import config  # loads settings from .env
 import mysql.connector
 import numpy as np
 import pandas as pd
